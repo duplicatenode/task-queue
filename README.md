@@ -7,30 +7,7 @@ A production-style distributed task queue built from scratch, without using any 
 In production systems, long-running tasks (sending emails, processing images, generating reports) cannot block the main API response. This project implements a task queue system that decouples task submission from task execution — the API accepts jobs instantly and returns, while background workers process them asynchronously.
 
 ## Architecture
-┌─────────────┐         ┌─────────────┐         ┌─────────────┐
-
-│   Client    │──POST──▶│  FastAPI    │──LPUSH──▶│    Redis    │
-
-│  (React)    │         │    API      │          │   (Queue)   │
-
-└─────────────┘         └──────┬──────┘          └──────┬──────┘
-
-│                        │
-
-INSERT                   RPOP
-
-│                        │
-
-▼                        ▼
-
-┌─────────────┐         ┌─────────────┐
-
-│ PostgreSQL  │◀─UPDATE─│   Worker    │
-
-│  (Storage)  │         │  (Python)   │
-
-└─────────────┘         └─────────────┘
-
+![Architecture](./architecture.png)
 Flow:
 1. Client submits a job via POST /jobs
 2. API saves job to PostgreSQL with status queued and pushes job ID to Redis
